@@ -3,10 +3,13 @@
   "name": "Translate Agent",
   "version": "1.0.0",
   "description": "基于大模型的智能翻译助手，支持英中翻译、词典查询和全文翻译",
-  "permissions": ["storage"],
+  "permissions": ["storage", "contextMenus"],
   "action": {
     "default_popup": "index.html",
     "default_title": "Translate Agent"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "icons": {
     "16": "icon-16.png",

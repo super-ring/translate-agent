@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useStorage } from "../hooks/useStorage";
 import { streamChat } from "../lib/api";
 import { STORAGE_KEYS, DEFAULT_SKILL } from "../lib/constants";
@@ -20,7 +20,9 @@ export function TranslatePanel() {
   const [output, setOutput] = useState("");
   const [rawMode, setRawMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [contextChecked, setContextChecked] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const autoTranslateRef = useRef<string | null>(null);
 
   // 从 localStorage 恢复上次输入
   if (inputLoaded && !inputInitialized) {
@@ -34,37 +36,76 @@ export function TranslatePanel() {
     saveInput(val);
   };
 
-  const handleTranslate = async () => {
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    if (!apiUrl || !apiKey || !model) {
-      setOutput(
-        "**错误**: 请先在「API 设置」中配置 API 地址、密钥和模型名称。",
-      );
+  const doTranslate = useCallback(
+    async (text: string) => {
+      if (!text.trim()) return;
+      if (!apiUrl || !apiKey || !model) {
+        setOutput(
+          "**错误**: 请先在「API 设置」中配置 API 地址、密钥和模型名称。",
+        );
+        return;
+      }
+
+      setLoading(true);
+      setOutput("");
+      abortRef.current = new AbortController();
+
+      const systemPrompt = skill || DEFAULT_SKILL;
+
+      try {
+        let accumulated = "";
+        for await (const chunk of streamChat(apiUrl, apiKey, model, [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: text.trim() },
+        ])) {
+          accumulated += chunk;
+          setOutput(accumulated);
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setOutput(`**翻译失败**: ${message}`);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiUrl, apiKey, model, skill],
+  );
+
+  // 检查右键菜单传入的文本
+  useEffect(() => {
+    if (contextChecked) return;
+    const isChromeExt =
+      typeof chrome !== "undefined" && chrome.storage?.local;
+    if (!isChromeExt) {
+      setContextChecked(true);
       return;
     }
 
-    setLoading(true);
-    setOutput("");
-    abortRef.current = new AbortController();
-
-    const systemPrompt = skill || DEFAULT_SKILL;
-
-    try {
-      let accumulated = "";
-      for await (const chunk of streamChat(apiUrl, apiKey, model, [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: trimmed },
-      ])) {
-        accumulated += chunk;
-        setOutput(accumulated);
+    chrome.storage.local.get(STORAGE_KEYS.CONTEXT_TEXT, (result) => {
+      const contextText = result[STORAGE_KEYS.CONTEXT_TEXT] as
+        | string
+        | undefined;
+      if (contextText) {
+        setInput(contextText);
+        saveInput(contextText);
+        chrome.storage.local.remove(STORAGE_KEYS.CONTEXT_TEXT);
+        autoTranslateRef.current = contextText;
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setOutput(`**翻译失败**: ${message}`);
-    } finally {
-      setLoading(false);
+      setContextChecked(true);
+    });
+  }, [contextChecked, saveInput]);
+
+  // 自动翻译右键菜单文本（等 API 设置加载完）
+  useEffect(() => {
+    if (autoTranslateRef.current && apiUrl && apiKey && model) {
+      const text = autoTranslateRef.current;
+      autoTranslateRef.current = null;
+      doTranslate(text);
     }
+  }, [apiUrl, apiKey, model, doTranslate]);
+
+  const handleTranslate = () => {
+    doTranslate(input);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -109,6 +150,7 @@ export function TranslatePanel() {
             <textarea
               className="w-full h-full bg-zinc-800 text-zinc-100 p-3 text-sm resize-none border border-indigo-500 rounded-lg focus:outline-none font-mono leading-relaxed"
               value={output}
+              readOnly
             />
           </div>
         ) : (

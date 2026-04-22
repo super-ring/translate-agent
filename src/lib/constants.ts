@@ -52,4 +52,5 @@ export const STORAGE_KEYS = {
   MODEL: "translate-agent-model",
   SKILL: "translate-agent-skill",
   INPUT: "translate-agent-input",
+  CONTEXT_TEXT: "translate-agent-context-text",
 } as const;
