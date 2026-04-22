@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Translate Agent",
+  "version": "1.0.0",
+  "description": "基于大模型的智能翻译助手，支持英中翻译、词典查询和全文翻译",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Translate Agent"
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  }
+}
