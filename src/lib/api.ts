@@ -9,9 +9,7 @@ export async function* streamChat(
   model: string,
   messages: ChatMessage[],
 ): AsyncGenerator<string> {
-  const url = apiUrl.replace(/\/+$/, "") + "/v1/chat/completions";
-
-  const response = await fetch(url, {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

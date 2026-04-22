@@ -31,13 +31,11 @@ export function ApiSettings() {
         <input
           type="url"
           className="w-full bg-zinc-800 text-zinc-100 rounded-lg px-3 py-2 text-sm border border-zinc-600 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
-          placeholder="https://api.openai.com"
+          placeholder="https://api.openai.com/v1/chat/completions"
           value={apiUrl}
           onChange={(e) => saveApiUrl(e.target.value)}
         />
-        <p className="text-xs text-zinc-500 mt-1">
-          OpenAI 兼容接口地址，无需包含 /v1/chat/completions
-        </p>
+        <p className="text-xs text-zinc-500 mt-1">填写内容会实时保存</p>
       </div>
 
       <div>
