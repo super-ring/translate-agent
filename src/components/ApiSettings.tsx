@@ -1,42 +1,26 @@
-import { useState } from "react";
 import { useStorage } from "../hooks/useStorage";
 import { STORAGE_KEYS } from "../lib/constants";
 
 export function ApiSettings() {
   const {
     value: apiUrl,
-    setValue: setApiUrl,
     save: saveApiUrl,
     loaded: urlLoaded,
   } = useStorage(STORAGE_KEYS.API_URL);
   const {
     value: apiKey,
-    setValue: setApiKey,
     save: saveApiKey,
     loaded: keyLoaded,
   } = useStorage(STORAGE_KEYS.API_KEY);
   const {
     value: model,
-    setValue: setModel,
     save: saveModel,
     loaded: modelLoaded,
   } = useStorage(STORAGE_KEYS.MODEL);
 
-  const [saved, setSaved] = useState(false);
-
   if (!urlLoaded || !keyLoaded || !modelLoaded) {
     return <div className="p-4 text-zinc-500 text-sm">加载中...</div>;
   }
-
-  const handleSave = async () => {
-    await Promise.all([
-      saveApiUrl(apiUrl),
-      saveApiKey(apiKey),
-      saveModel(model),
-    ]);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
 
   return (
     <div className="p-4 space-y-4">
@@ -49,7 +33,7 @@ export function ApiSettings() {
           className="w-full bg-zinc-800 text-zinc-100 rounded-lg px-3 py-2 text-sm border border-zinc-600 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
           placeholder="https://api.openai.com"
           value={apiUrl}
-          onChange={(e) => setApiUrl(e.target.value)}
+          onChange={(e) => saveApiUrl(e.target.value)}
         />
         <p className="text-xs text-zinc-500 mt-1">
           OpenAI 兼容接口地址，无需包含 /v1/chat/completions
@@ -65,7 +49,7 @@ export function ApiSettings() {
           className="w-full bg-zinc-800 text-zinc-100 rounded-lg px-3 py-2 text-sm border border-zinc-600 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
           placeholder="sk-..."
           value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
+          onChange={(e) => saveApiKey(e.target.value)}
         />
       </div>
 
@@ -78,16 +62,9 @@ export function ApiSettings() {
           className="w-full bg-zinc-800 text-zinc-100 rounded-lg px-3 py-2 text-sm border border-zinc-600 focus:border-indigo-500 focus:outline-none placeholder-zinc-500"
           placeholder="gpt-4o-mini"
           value={model}
-          onChange={(e) => setModel(e.target.value)}
+          onChange={(e) => saveModel(e.target.value)}
         />
       </div>
-
-      <button
-        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium py-2 rounded-lg transition-colors"
-        onClick={handleSave}
-      >
-        {saved ? "已保存 ✓" : "保存设置"}
-      </button>
 
       <div className="mt-4 p-3 bg-zinc-800/50 rounded-lg border border-zinc-700">
         <p className="text-xs text-zinc-400 leading-relaxed">
