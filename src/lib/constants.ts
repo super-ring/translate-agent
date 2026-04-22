@@ -51,6 +51,5 @@ export const STORAGE_KEYS = {
   API_KEY: "translate-agent-api-key",
   MODEL: "translate-agent-model",
   SKILL: "translate-agent-skill",
-  WHITELIST: "translate-agent-whitelist",
   INPUT: "translate-agent-input",
 } as const;

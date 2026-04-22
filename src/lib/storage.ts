@@ -20,12 +20,11 @@ export async function setItem(key: string, value: string): Promise<void> {
 }
 
 export async function loadAllSettings() {
-  const [apiUrl, apiKey, model, skill, whitelist] = await Promise.all([
+  const [apiUrl, apiKey, model, skill] = await Promise.all([
     getItem(STORAGE_KEYS.API_URL),
     getItem(STORAGE_KEYS.API_KEY),
     getItem(STORAGE_KEYS.MODEL),
     getItem(STORAGE_KEYS.SKILL),
-    getItem(STORAGE_KEYS.WHITELIST),
   ]);
-  return { apiUrl, apiKey, model, skill, whitelist };
+  return { apiUrl, apiKey, model, skill };
 }

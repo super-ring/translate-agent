@@ -1,73 +1,70 @@
-# React + TypeScript + Vite
+# Translate Agent
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+基于大模型的智能翻译浏览器插件，支持英中互译、词典查询和长文档翻译。
 
-Currently, two official plugins are available:
+## 功能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **智能识别**：自动判断输入语言，中文翻译成英文，英文句子翻译成中文，英文单词进入词典模式
+- **流式输出**：翻译结果实时流式显示，支持 Markdown 渲染和纯文本切换
+- **长文档翻译**：逐句翻译，保留 Markdown 格式、代码块、链接等原始结构
+- **专有名词处理**：自动识别人名、地名、品牌名、技术术语等，保留原文不翻译
+- **可自定义 Skill**：支持自定义翻译 System Prompt，灵活调整翻译行为
+- **数据本地存储**：所有配置和数据仅存储在浏览器本地，不会上传到任何服务器
 
-## React Compiler
+## 技术栈
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + TypeScript
+- Tailwind CSS v4
+- Vite 8
+- Chrome Extension Manifest V3
+- OpenAI 兼容 API（流式）
 
-## Expanding the ESLint configuration
+## 使用方式
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 开发
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 构建插件
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+pnpm build
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+构建产物在 `dist/` 目录下。
+
+### 安装到 Chrome
+
+1. 打开 `chrome://extensions/`
+2. 开启右上角「开发者模式」
+3. 点击「加载已解压的扩展程序」
+4. 选择项目的 `dist/` 目录
+
+### 配置
+
+首次使用需在「API 设置」中配置：
+
+- **API Base URL**：OpenAI 兼容接口地址（如 `https://api.openai.com`）
+- **API Key**：接口密钥
+- **模型名称**：要使用的模型（如 `gpt-4o-mini`）
+
+## 项目结构
+
+```
+src/
+  App.tsx                # 主应用，Tab 导航
+  components/
+    TranslatePanel.tsx   # 翻译模块
+    ApiSettings.tsx      # API 设置
+    TranslateSettings.tsx # 翻译 Skill 设置
+    MarkdownRenderer.tsx # Markdown 渲染
+  hooks/
+    useStorage.ts        # 本地存储 Hook
+  lib/
+    api.ts               # OpenAI 兼容流式 API
+    constants.ts         # 默认 Skill、存储 Key
+    storage.ts           # chrome.storage / localStorage 封装
 ```

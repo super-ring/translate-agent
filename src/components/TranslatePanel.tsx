@@ -9,7 +9,6 @@ export function TranslatePanel() {
   const { value: apiKey } = useStorage(STORAGE_KEYS.API_KEY);
   const { value: model } = useStorage(STORAGE_KEYS.MODEL);
   const { value: skill } = useStorage(STORAGE_KEYS.SKILL, DEFAULT_SKILL);
-  const { value: whitelist } = useStorage(STORAGE_KEYS.WHITELIST);
   const {
     value: savedInput,
     save: saveInput,
@@ -19,6 +18,7 @@ export function TranslatePanel() {
   const [input, setInput] = useState("");
   const [inputInitialized, setInputInitialized] = useState(false);
   const [output, setOutput] = useState("");
+  const [rawMode, setRawMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -48,15 +48,7 @@ export function TranslatePanel() {
     setOutput("");
     abortRef.current = new AbortController();
 
-    const whitelistItems = whitelist
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    let systemPrompt = skill || DEFAULT_SKILL;
-    if (whitelistItems.length > 0) {
-      systemPrompt += `\n\n## 免翻译白名单\n以下词汇在翻译时请保持原文不翻译，但需要保证整个句子的翻译通顺完整：\n${whitelistItems.join(", ")}`;
-    }
+    const systemPrompt = skill || DEFAULT_SKILL;
 
     try {
       let accumulated = "";
@@ -101,8 +93,27 @@ export function TranslatePanel() {
           {loading ? "翻译中..." : "翻译"}
         </button>
       </div>
+      <div className="flex items-center justify-end px-3 pt-2">
+        {output && (
+          <button
+            className="text-xs text-zinc-400 hover:text-zinc-200 border border-zinc-600 hover:border-zinc-400 p-0.5 rounded transition-colors mb-0.5"
+            onClick={() => setRawMode(!rawMode)}
+          >
+            {rawMode ? "渲染模式" : "文本模式"}
+          </button>
+        )}
+      </div>
       <div className="flex-1 overflow-y-auto">
-        <MarkdownRenderer content={output} />
+        {rawMode ? (
+          <div className="h-full p-1">
+            <textarea
+              className="w-full h-full bg-zinc-800 text-zinc-100 p-3 text-sm resize-none border border-indigo-500 rounded-lg focus:outline-none font-mono leading-relaxed"
+              value={output}
+            />
+          </div>
+        ) : (
+          <MarkdownRenderer content={output} />
+        )}
       </div>
     </div>
   );
