@@ -1,10 +1,14 @@
-# Translate Agent
+# 翻译 Agent
 
 ![GitHub stars](https://img.shields.io/github/stars/super-ring/translate-agent)
 ![GitHub forks](https://img.shields.io/github/forks/super-ring/translate-agent)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/super-ring/translate-agent)
 
 基于大模型的智能翻译浏览器插件，支持英中互译、词典查询和长文档翻译。
+
+# 浏览器插件商店安装
+
+进入[谷歌浏览器商店](https://chromewebstore.google.com/detail/%E7%BF%BB%E8%AF%91-agent/bopfjmgagdoomggjcpjcadlbaaobjhkl?hl=zh-CN&authuser=0),进行安装与使用
 
 ## 功能
 
