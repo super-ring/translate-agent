@@ -1,19 +1,27 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TranslatePanel } from "./components/TranslatePanel";
 import { ApiSettings } from "./components/ApiSettings";
 import { TranslateSettings } from "./components/TranslateSettings";
+import { HistoryPanel } from "./components/HistoryPanel";
 import "./App.css";
 
-type Tab = "translate" | "api" | "settings";
+type Tab = "translate" | "history" | "api" | "settings";
 
 const tabs: { key: Tab; label: string }[] = [
   { key: "translate", label: "翻译" },
+  { key: "history", label: "历史输入" },
   { key: "api", label: "API 设置" },
   { key: "settings", label: "翻译设置" },
 ];
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>("translate");
+  const setInputRef = useRef<((text: string) => void) | null>(null);
+
+  const handleHistorySelect = (text: string) => {
+    setInputRef.current?.(text);
+    setActiveTab("translate");
+  };
 
   return (
     <div className="w-[400px] h-[550px] bg-zinc-900 text-zinc-100 flex flex-col overflow-hidden">
@@ -33,8 +41,17 @@ function App() {
         ))}
       </nav>
       <div className="flex-1 overflow-y-auto">
-        {activeTab === "translate" && <TranslatePanel />}
+        <TranslatePanel
+          display={activeTab === "translate"}
+          setInputRef={setInputRef}
+        />
+
+        {activeTab === "history" && (
+          <HistoryPanel onSelect={handleHistorySelect} />
+        )}
+
         {activeTab === "api" && <ApiSettings />}
+
         {activeTab === "settings" && <TranslateSettings />}
       </div>
     </div>

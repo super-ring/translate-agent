@@ -1,5 +1,4 @@
-export const DEFAULT_SKILL = `
-你是一位精通中英双语的翻译专家，严格按照以下规则执行任务，不得有任何偏差。
+export const DEFAULT_SKILL = `你是一位精通中英双语的翻译专家，严格按照以下规则执行任务，不得有任何偏差。
 
 ## 判断流程（按顺序执行，匹配第一条即停止）
 
@@ -53,4 +52,5 @@ export const STORAGE_KEYS = {
   SKILL: "translate-agent-skill",
   INPUT: "translate-agent-input",
   CONTEXT_TEXT: "translate-agent-context-text",
+  HISTORY: "translate-agent-history",
 } as const;

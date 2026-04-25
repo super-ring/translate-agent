@@ -1,10 +1,22 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  type RefObject,
+} from "react";
 import { useStorage } from "../hooks/useStorage";
 import { streamChat } from "../lib/api";
+import { getItem, setItem } from "../lib/storage";
 import { STORAGE_KEYS, DEFAULT_SKILL } from "../lib/constants";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
-export function TranslatePanel() {
+type Props = {
+  display?: boolean;
+  setInputRef?: RefObject<((text: string) => void) | null>;
+};
+
+export function TranslatePanel({ display = true, setInputRef }: Props) {
   const { value: apiUrl } = useStorage(STORAGE_KEYS.API_URL);
   const { value: apiKey } = useStorage(STORAGE_KEYS.API_KEY);
   const { value: model } = useStorage(STORAGE_KEYS.MODEL);
@@ -29,6 +41,16 @@ export function TranslatePanel() {
     if (savedInput) setInput(savedInput);
     setInputInitialized(true);
   }
+
+  // 暴露 setInput 给父组件（用于历史记录回填）
+  useEffect(() => {
+    if (setInputRef) {
+      setInputRef.current = (text: string) => {
+        setInput(text);
+        saveInput(text);
+      };
+    }
+  }, [setInputRef, saveInput]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
@@ -61,6 +83,16 @@ export function TranslatePanel() {
           accumulated += chunk;
           setOutput(accumulated);
         }
+        // 翻译成功，保存输入到历史记录
+        const raw = await getItem(STORAGE_KEYS.HISTORY);
+        const history: string[] = raw ? JSON.parse(raw) : [];
+        const trimmed = text.trim();
+        const filtered = history.filter((item) => item !== trimmed);
+        filtered.unshift(trimmed);
+        await setItem(
+          STORAGE_KEYS.HISTORY,
+          JSON.stringify(filtered.slice(0, 50)),
+        );
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         setOutput(`**翻译失败**: ${message}`);
@@ -74,8 +106,7 @@ export function TranslatePanel() {
   // 检查右键菜单传入的文本
   useEffect(() => {
     if (contextChecked) return;
-    const isChromeExt =
-      typeof chrome !== "undefined" && chrome.storage?.local;
+    const isChromeExt = typeof chrome !== "undefined" && chrome.storage?.local;
     if (!isChromeExt) {
       setContextChecked(true);
       return;
@@ -115,6 +146,8 @@ export function TranslatePanel() {
     }
   };
 
+  if (!display) return null;
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 border-b border-zinc-700">
@@ -134,7 +167,7 @@ export function TranslatePanel() {
           {loading ? "翻译中..." : "翻译"}
         </button>
       </div>
-      <div className="flex items-center justify-end px-3 pt-2">
+      <div className="flex items-center px-3 pt-2">
         {output && (
           <button
             className="text-xs text-zinc-400 hover:text-zinc-200 border border-zinc-600 hover:border-zinc-400 p-0.5 rounded transition-colors mb-0.5"
