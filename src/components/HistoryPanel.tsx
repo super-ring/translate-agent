@@ -21,7 +21,7 @@ export function HistoryPanel({ onSelect }: Props) {
             {history.map((item, index) => (
               <li key={index}>
                 <button
-                  className="w-full text-left text-sm text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded-lg px-3 py-2 border border-zinc-700 hover:border-zinc-500 transition-colors line-clamp-3"
+                  className="w-full text-left text-sm text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded-lg px-3 py-1 border border-zinc-700 hover:border-zinc-500 transition-colors line-clamp-3"
                   onClick={() => onSelect(item)}
                   title={item}
                 >
