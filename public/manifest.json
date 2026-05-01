@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "翻译 Agent",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "基于自定义配置大模型的智能翻译助手，支持英中翻译、词典查询和全文翻译",
   "permissions": ["storage", "contextMenus"],
   "action": {
