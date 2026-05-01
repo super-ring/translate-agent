@@ -16,6 +16,7 @@ export async function setItem(key: string, value: string): Promise<void> {
     await chrome.storage.local.set({ [key]: value });
   } else {
     localStorage.setItem(key, value);
+    window.dispatchEvent(new CustomEvent("storage-sync", { detail: { key, value } }));
   }
 }
 
